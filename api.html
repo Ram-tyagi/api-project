@@ -1,0 +1,80 @@
+<html>
+    <body>
+    <form onsubmit="saveToLocalStorage(event)">
+    <label for="">Selling Price</label>
+    <input id="selling" type="text" name="price" required/>
+    <label for="">Product Name</label>
+    <input id="product" type="name" name="pname" required/>
+    <button>Add Item</button>    
+    <ul id="listOfItems"></ul>
+</form>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.2/axios.min.js"></script>
+<script>
+    function saveToLocalStorage(event){
+        event.preventDefault()
+        const amount=event.target.price.value;
+        const name=event.target.pname.value;
+
+        const obj={
+            amount,
+            name
+        }
+        axios.post("https://crudcrud.com/api/c44412f4da0947628d644079eaae8b3f/ecomsite" ,obj)
+         .then((response) => {
+        showNewUserOnScreen(response.data);
+        console.log(response);
+      })
+      .catch((err) => {
+        document.body.innerHTML =
+          document.body.innerHTML + "<h4> Something went wrong! </h4>";
+        console.log(err);
+      });
+  }
+    window.addEventListener("DOMContentLoaded", () => {
+    axios
+      .get("https://crudcrud.com/api/c61299ec93174ab78511579b75bda0f0/addUser")
+      .then((response) => {
+        for (var i = 0; i < response.data.length; i++) {
+          showNewUserOnScreen(response.data[i]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+  function showNewUserOnScreen(user) {
+    document.getElementById("selling").value = "";
+    document.getElementById("product").value = "";
+     const parentNode = document.getElementById("users");
+    const childHTML = `<li id=${user._id}> ${user.selling} - ${user.product}
+                            <button onclick=deleteUser('${user._id}')> Delete User </button>
+                            <button onclick=editUserDetails('${user.selling}','${user.product}','${user._id}')>Edit User </button>
+                         </li>`;
+  
+    parentNode.innerHTML = parentNode.innerHTML + childHTML;
+  }
+   function editUserDetails(amount, name, userId) {
+    document.getElementById("selling").value = amount;
+    document.getElementById("product").value = name;
+    deleteUser(userId);
+  }
+   function deleteUser(userId) {
+    axios
+      .delete(
+        `https://crudcrud.com/api/c61299ec93174ab78511579b75bda0f0/addUser/${userId}`
+      )
+      .then((response) => {
+        removeUserFromScreen(userId);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+  function removeUserFromScreen(userId) {
+    const parentNode = document.getElementById("users");
+    const childNodeToBeDeleted = document.getElementById(userId);
+    parentNode.removeChild(childNodeToBeDeleted);
+  }
+</script>
+</body>
+</html>
